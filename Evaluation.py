@@ -24,7 +24,7 @@ def InputTrajectories(file_folder):
         for file in file_list:
             files.append(file)
 
-    trajectoriesListList = []
+    trajectories_list_list = []
     for input_file in files:
         ori_data = pd.read_csv(file_folder + "\\" + input_file, header=None, sep="\t")
         trajectories_list = []
@@ -36,8 +36,8 @@ def InputTrajectories(file_folder):
                 trajectories = []
             elif i == ori_data.shape[0] - 1:
                 trajectories_list.append(trajectories)
-        trajectoriesListList.append(trajectories_list)
-    return trajectoriesListList
+        trajectories_list_list.append(trajectories_list)
+    return trajectories_list_list
 
 
 def NormolizedTrajectories(ori_trajectories_list_list, ori_position, dest_position):
@@ -48,10 +48,10 @@ def NormolizedTrajectories(ori_trajectories_list_list, ori_position, dest_positi
             updated_trajectories = []
             first_trajectories = ori_trajectories_list_list[j][k][0]
             last_trajectories = ori_trajectories_list_list[j][k][-1]
-            angle = AngleRotation(originalPoint, destinationPoint, first_trajectories, last_trajectories)
+            angle = AngleRotation(Original_Point, Destination_Point, first_trajectories, last_trajectories)
             for h in range(len(ori_trajectories_list_list[j][k])):  # rotation
                 point = ori_trajectories_list_list[j][k][h]
-                updated_point = TrajecotoriesNorAdjustment(point, first_trajectories, originalPoint, angle)
+                updated_point = TrajecotoriesNorAdjustment(point, first_trajectories, Original_Point, angle)
                 updated_trajectories.append(updated_point)
             if abs(np.max(updated_trajectories, axis=0)[1]) < abs(np.min(updated_trajectories, axis=0)[1]):  # mirror
                 for h in range(len(updated_trajectories)):  # mirror
@@ -132,8 +132,6 @@ def CalculateFundamentalDiagram(trajectories_list_list, fps):
                                    - np.array(trajectories_list_list[i][k][j])) * fps)
             # calculation
             vor = Voronoi(ped_list)
-            # fig = voronoi_plot_2d(vor)
-            # plt.show()
             for k in range(len(vor.regions) - 1):
                 if not -1 in vor.regions[k]:
                     polygon = [vor.vertices[ii] for ii in vor.regions[k]]
@@ -257,82 +255,85 @@ def SimilarityIndexes(expList, simList, indextype):
             number += 1
             index_max = max(index, index_max)
 
-
-
     index = index / number
 
     return index
 
 
 # ### Evaluation scores
-def Evaluation(oripoint, destpoint, oriexptrajectorieslistlist, orisimtrajectorieslistlist, cutoffdistance, fps):
-    exptrajectorieslistlist = NormolizedTrajectories(oriexptrajectorieslistlist, oripoint, destpoint)
-    simtrajectorieslistlist = NormolizedTrajectories(orisimtrajectorieslistlist, oripoint, destpoint)
-    expModiTrajectoriesListList = FilterTrajectories(exptrajectorieslistlist, oripoint, destpoint, cutoffdistance)
-    simModiTrajectoriesListList = FilterTrajectories(simtrajectorieslistlist, oripoint, destpoint, cutoffdistance)
+def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_trajectories_list_list, cutoff_distance,
+               fps):
+    exp_trajectories_list_list = NormolizedTrajectories(ori_exp_trajectories_list_list, oripoint, destpoint)
+    sim_trajectories_list_list = NormolizedTrajectories(ori_sim_trajectories_list_list, oripoint, destpoint)
+    exp_modi_trajectories_list_list = FilterTrajectories(exp_trajectories_list_list, oripoint, destpoint,
+                                                         cutoff_distance)
+    sim_modi_trajectories_list_list = FilterTrajectories(sim_trajectories_list_list, oripoint, destpoint,
+                                                         cutoff_distance)
 
     # fd based data list
-    index_fd = SimilarityIndexes(CalculateFundamentalDiagram(oriexptrajectorieslistlist, fps),
-                                 CalculateFundamentalDiagram(orisimtrajectorieslistlist, fps), 'dtw-fd')
+    index_fd = SimilarityIndexes(CalculateFundamentalDiagram(ori_exp_trajectories_list_list, fps),
+                                 CalculateFundamentalDiagram(ori_sim_trajectories_list_list, fps), 'dtw-fd')
 
     # Distribution - Route length
-    indexDisRL = SimilarityIndexes(CalculateRouteLengthList(expModiTrajectoriesListList),
-                                   CalculateRouteLengthList(simModiTrajectoriesListList), 'dtw-dis')
+    index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
+                                     CalculateRouteLengthList(sim_modi_trajectories_list_list), 'dtw-dis')
 
     # Distribution - Travel Time
-    indexDisTT = SimilarityIndexes(CalculateTravelTimeList(expModiTrajectoriesListList, fps),
-                                   CalculateTravelTimeList(simModiTrajectoriesListList, fps), 'dtw-dis')
+    index_Dis_TT = SimilarityIndexes(CalculateTravelTimeList(exp_modi_trajectories_list_list, fps),
+                                     CalculateTravelTimeList(sim_modi_trajectories_list_list, fps), 'dtw-dis')
 
     # Distribution - Speed
-    indexDisSpeed = SimilarityIndexes(CalculateSpeedList(expModiTrajectoriesListList, fps),
-                                      CalculateSpeedList(simModiTrajectoriesListList, fps), 'dtw-dis')
+    index_Dis_Speed = SimilarityIndexes(CalculateSpeedList(exp_modi_trajectories_list_list, fps),
+                                        CalculateSpeedList(sim_modi_trajectories_list_list, fps), 'dtw-dis')
 
     # Times series - Original position
-    indexTSOriPoint = SimilarityIndexes(CalculatePointTimeSeries(exptrajectorieslistlist, oripoint, cutoffdistance),
-                                        CalculatePointTimeSeries(simtrajectorieslistlist, oripoint, cutoffdistance),
-                                        "dtw-ts")
+    index_TS_OriPoint = SimilarityIndexes(
+        CalculatePointTimeSeries(exp_trajectories_list_list, oripoint, cutoff_distance),
+        CalculatePointTimeSeries(sim_trajectories_list_list, oripoint, cutoff_distance),
+        "dtw-ts")
 
     # Times series - Destination position
-    indexTSDestPoint = SimilarityIndexes(CalculatePointTimeSeries(exptrajectorieslistlist, destpoint, cutoffdistance),
-                                         CalculatePointTimeSeries(simtrajectorieslistlist, destpoint, cutoffdistance),
-                                         "dtw-ts")
+    index_TS_DestPoint = SimilarityIndexes(
+        CalculatePointTimeSeries(exp_trajectories_list_list, destpoint, cutoff_distance),
+        CalculatePointTimeSeries(sim_trajectories_list_list, destpoint, cutoff_distance),
+        "dtw-ts")
 
     # Time series - Speed
-    indexTSSpeed = SimilarityIndexes(CaculateSpeedTimeSeries(exptrajectorieslistlist, 0.1, fps),
-                                     CaculateSpeedTimeSeries(simtrajectorieslistlist, 0.1, fps), "dtw-ts")
+    index_TS_Speed = SimilarityIndexes(CaculateSpeedTimeSeries(exp_trajectories_list_list, 0.1, fps),
+                                       CaculateSpeedTimeSeries(sim_trajectories_list_list, 0.1, fps), "dtw-ts")
 
     # Microscopic trajectories
-    indexTrajectories = SimilarityIndexes(expModiTrajectoriesListList,
-                                          simModiTrajectoriesListList, "dtw-sort")
+    index_Trajectories = SimilarityIndexes(exp_modi_trajectories_list_list,
+                                           sim_modi_trajectories_list_list, "dtw-sort")
 
     scores = [index_fd,  # macroscopic fd
-              indexDisRL, indexDisTT, indexDisSpeed,  # static distribution
-              indexTSOriPoint, indexTSDestPoint, indexTSSpeed,  # dynamic time series
-              indexTrajectories]  # microscopic trajectories
+              index_Dis_RL, index_Dis_TT, index_Dis_Speed,  # static distribution
+              index_TS_OriPoint, index_TS_DestPoint, index_TS_Speed,  # dynamic time series
+              index_Trajectories]  # microscopic trajectories
     return scores
 
 
 ### top bottom
 if __name__ == "__main__":
-    originalPoint = (0, 0)  # starting position
-    destinationPoint = (20, 0)  # destination position
-    cutoffDistance = 1  # cut-off distance
-    orifps = 25  # flames per second
-    destfps = 5  # flames per second
-    labels = ['EXP', 'BM', 'SFM', 'VO']
-    lineStyles = ['ro-', 'ys--', 'b^-.', 'gv:', 'k--']
-    folderName = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
+    Original_Point = (0, 0)  # starting position
+    Destination_Point = (20, 0)  # destination position
+    Cutoff_Distance = 1  # cut-off distance
+    Ori_Fps = 25  # flames per second
+    Dest_Fps = 5  # flames per second
+    Labels = ['EXP', 'BM', 'SFM', 'VO']
+    Line_Styles = ['ro-', 'ys--', 'b^-.', 'gv:', 'k--']
+    Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
                  r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
 
-    oriTrajectoriesListListList = []
-    TrajectoriesListListList = []
-    scoresList = []
-    for i in range(0, len(labels)):
-        TrajectoriesListList = InputTrajectories(folderName + "\\" + labels[i])
-        TrajectoriesListListList.append(TrajectoriesListList)
-    TrajectoriesListListList = FPSAdjustment(TrajectoriesListListList, orifps, destfps)
-    for i in range(0, len(TrajectoriesListListList)):
-        scores = Evaluation(originalPoint, destinationPoint, TrajectoriesListListList[0], TrajectoriesListListList[i],
-                            cutoffDistance, destfps)
-        scoresList.append(scores)
-    Radar1.RadarFigure(scoresList, lineStyles, labels)
+    Ori_Trajectories_List_List_List = []
+    Trajectories_List_List_List = []
+    Scores_List = []
+    for i in range(0, len(Labels)):
+        TrajectoriesListList = InputTrajectories(Folder_Name + "\\" + Labels[i])
+        Trajectories_List_List_List.append(TrajectoriesListList)
+    Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
+    for i in range(0, len(Trajectories_List_List_List)):
+        scores = Evaluation(Original_Point, Destination_Point, Trajectories_List_List_List[0], Trajectories_List_List_List[i],
+                            Cutoff_Distance, Dest_Fps)
+        Scores_List.append(scores)
+    Radar1.RadarFigure(Scores_List, Line_Styles, Labels)

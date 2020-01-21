@@ -17,7 +17,7 @@ def Distance(p1, p2):
     return dist
 
 
-def dtwX(s1, s2):
+def DtwX(s1, s2):
     w = len(s1)
     h = len(s2)
     opValue = 10000
@@ -78,7 +78,7 @@ def dtwX(s1, s2):
     return retval
 
 
-def dtwfd(p, q, zones):
+def DtwFD(p, q, zones):
     val_max = max(p[0])
     val_min = min(p[0])
     exp_dis = [0 for i in range(zones)]
@@ -105,11 +105,11 @@ def dtwfd(p, q, zones):
         sim.append([i, sim_dis[i]])
     exp = zscore(exp)
     sim = zscore(sim)
-    val = dtwX(exp, sim)
+    val = DtwX(exp, sim)
     return val/len(sim), len(sim)
 
 
-def dtwDis(p, q, zones):
+def DtwDis(p, q, zones):
     val_max = max(p)
     val_min = min(p)
     exp_dis = [0 for i in range(zones)]
@@ -139,21 +139,21 @@ def dtwDis(p, q, zones):
         exp.append([i, exp_dis[i]])
         sim.append([i, sim_dis[i]])
 
-    val = dtwX(exp, sim)
+    val = DtwX(exp, sim)
     return val/len(sim), len(sim)
 
 
-def dtwTS(s1, s2):
-    return dtwX(s1, s2)/len(s2), len(s2)
+def DtwTS(s1, s2):
+    return DtwX(s1, s2) / len(s2), len(s2)
 
 
-def dtwSorted(s1, s2):
-    s1 = trajectoriesSort(s1)
-    s2 = trajectoriesSort(s2)
+def DtwSorted(s1, s2):
+    s1 = TrajectoriesSort(s1)
+    s2 = TrajectoriesSort(s2)
     total_dtw = 0
     count = 0
     for i in range(len(s1)):
-        dtw = dtwX(s1[i], s2[i])
+        dtw = DtwX(s1[i], s2[i])
         dtw = dtw / len(s2[i])
         count = count + 1
         total_dtw += dtw
@@ -172,7 +172,7 @@ def CalculateRouteLength(trajectories_list):
     return route_length_list
 
 
-def trajectoriesSort(ts_list):
+def TrajectoriesSort(ts_list):
     route_length_list = CalculateRouteLength(ts_list)
     ts_list_updated = []
     for i in range(len(ts_list)):
@@ -189,11 +189,11 @@ def trajectoriesSort(ts_list):
 
 
 # ###
-def kl_divergence_continuous(p, q):
+def KLDivergenceContinuous(p, q):
     return np.sum(np.where(p != 0, p * np.log(p / q), 0))
 
 
-def kl_divergence_distribution(p, q, zones):  # (0, +inf)
+def KLDivergenceDistribution(p, q, zones):  # (0, +inf)
     # return np.sum(np.where(p != 0, p * np.log(p / q), 0))
     val_max = max(p)
     val_min = min(p)
@@ -220,7 +220,7 @@ def kl_divergence_distribution(p, q, zones):  # (0, +inf)
     return val
 
 
-def kl_divergence_fd(p, q, zones):  # (0, +inf)
+def KLDivergenceFD(p, q, zones):  # (0, +inf)
     # return np.sum(np.where(p != 0, p * np.log(p / q), 0))
     val_max = max(p[0])
     val_min = min(p[0])
@@ -251,32 +251,33 @@ def kl_divergence_fd(p, q, zones):  # (0, +inf)
     return val
 
 
-def ksTest(expArray, simArray):
+def KSTest(expArray, simArray):
     x, p = ks_2samp(expArray, simArray)
     # result = 1 / (1 - log10(p))
     return p
 
 
-xlist = []
 
+
+xlist = []
 
 def SimilarityIndex(s1, s2, indextype):
     val = 0
     fixvalue = 15.82
     if indextype == 'dtw-fd':
-        val, length = dtwfd(s1, s2, 10)
+        val, length = DtwFD(s1, s2, 10)
         xlist.append(['dtw-fd', length, round(val, 2), round(val / length, 2)])
         val = (fixvalue - val) / fixvalue
     elif indextype == 'dtw-dis':
-        val, length = dtwDis(s1, s2, 5)
+        val, length = DtwDis(s1, s2, 5)
         xlist.append(['dtw-dis', length, round(val, 2)])
         val = (fixvalue - val) / fixvalue
     elif indextype == 'dtw-ts':
-        val, length = dtwTS(s1, s2)
+        val, length = DtwTS(s1, s2)
         xlist.append(['dtw-ts', length, round(val, 2)])
         val = (fixvalue - val) / fixvalue
     elif indextype == 'dtw-sort':
-        val, length = dtwSorted(s1, s2)
+        val, length = DtwSorted(s1, s2)
         xlist.append(['dtw-sort', length, round(val, 2)])
         val = (fixvalue - val) / fixvalue
 
