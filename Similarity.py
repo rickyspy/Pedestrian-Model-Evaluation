@@ -1,7 +1,7 @@
 from math import *
 import numpy as np
 from scipy.stats import ks_2samp, zscore
-import Evaluation
+import Evaluation1
 
 
 def Distance(p1, p2):

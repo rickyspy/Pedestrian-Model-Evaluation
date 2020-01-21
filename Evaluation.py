@@ -8,7 +8,7 @@ r'''
 
 import numpy as np
 import pandas as pd
-import Similarity, Radar, os, copy
+import Similarity1, Radar1, os, copy
 from numpy.linalg import norm
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.pyplot as plt
@@ -252,24 +252,15 @@ def SimilarityIndexes(expList, simList, indextype):
 
     for i in range(len(expList)):
         for j in range(len(simList)):
-            index = Similarity.SimilarityIndex(expList[i], simList[j], indextype)
+            index = Similarity1.SimilarityIndex(expList[i], simList[j], indextype)
             index_sum += index
             number += 1
             index_max = max(index, index_max)
 
-    # index_repeat = 0
-    # index_repeat_sum = 0
-    # number_repeat = 0
-    # for i in range(len(expList)):
-    #     for j in range(len(simList)):
-    #         index_repeat = Similarity.SimilarityIndex(expList[i], simList[j], indextype)
-    #         index_repeat_sum += index_repeat
-    #         number_repeat += 1
+
 
     index = index / number
-    # index_repeat = index_repeat / number_repeat
-    # index_repeat = 0
-    # index = (index_max - index) / (index_max - 0)
+
     return index
 
 
@@ -344,4 +335,4 @@ if __name__ == "__main__":
         scores = Evaluation(originalPoint, destinationPoint, TrajectoriesListListList[0], TrajectoriesListListList[i],
                             cutoffDistance, destfps)
         scoresList.append(scores)
-    Radar.RadarFigure(scoresList, lineStyles, labels)
+    Radar1.RadarFigure(scoresList, lineStyles, labels)
