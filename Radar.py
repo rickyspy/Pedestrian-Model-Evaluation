@@ -17,7 +17,6 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
     plt.rcParams.update({'font.size': 6.5})
     plt.grid(linewidth=0.25, linestyle='--')
 
-
     ### data
     linelist = []
     for i in range(len(scoreslist)):
