@@ -262,22 +262,22 @@ xlist = []
 
 def SimilarityIndex(s1, s2, indextype):
     val = 0
-    fixvalue = 15.82
+    fixvalue = [15, 15, 15, 5]
     if indextype == 'dtw-fd':
         val, length = DtwFD(s1, s2, 10)
         xlist.append(['dtw-fd', length, round(val, 2), round(val / length, 2)])
-        val = (fixvalue - val) / fixvalue
+        val = (fixvalue[0] - val) / fixvalue[0]
     elif indextype == 'dtw-dis':
         val, length = DtwDis(s1, s2, 5)
         xlist.append(['dtw-dis', length, round(val, 2)])
-        val = (fixvalue - val) / fixvalue
+        val = (fixvalue[1] - val) / fixvalue[1]
     elif indextype == 'dtw-ts':
         val, length = DtwTS(s1, s2)
         xlist.append(['dtw-ts', length, round(val, 2)])
-        val = (fixvalue - val) / fixvalue
+        val = (fixvalue[2] - val) / fixvalue[2]
     elif indextype == 'dtw-sort':
         val, length = DtwSorted(s1, s2)
         xlist.append(['dtw-sort', length, round(val, 2)])
-        val = (fixvalue - val) / fixvalue
+        val = (fixvalue[3] - val) / fixvalue[3]
 
     return val

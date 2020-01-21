@@ -11,7 +11,6 @@ import pandas as pd
 import Similarity, Radar, os, copy
 from numpy.linalg import norm
 from scipy.spatial import Voronoi, voronoi_plot_2d
-import matplotlib.pyplot as plt
 
 
 # global parameters
@@ -218,7 +217,9 @@ def CalculatePointTimeSeries(trajectories_list_list, position, cutoff_distance):
             for i in range(len(trajectories_list_list[k])):
                 distance = distance + norm(np.array(trajectories_list_list[k][i][j]) - np.array(position))
             distance = distance / len(trajectories_list_list[k])
-            distance_ts.append((j, distance))
+            if (cutoff_distance < distance
+                    < norm(np.array(Original_Point) - np.array(Destination_Point)) - cutoff_distance):
+                distance_ts.append((j, distance))
         distance_ts_list.append(distance_ts)
     return distance_ts_list
 
@@ -255,7 +256,7 @@ def SimilarityIndexes(expList, simList, indextype):
             number += 1
             index_max = max(index, index_max)
 
-    index = index / number
+    index = index_sum / number
 
     return index
 
@@ -321,9 +322,10 @@ if __name__ == "__main__":
     Ori_Fps = 25  # flames per second
     Dest_Fps = 5  # flames per second
     Labels = ['EXP', 'BM', 'SFM', 'VO']
-    Line_Styles = ['ro-', 'ys--', 'b^-.', 'gv:', 'k--']
-    Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
-                  r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
+    Line_Styles = ['k--', 'ro-', 'ys--', 'b^-.', 'gv:']
+    # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
+    #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
+    Folder_Name = r'BaseData'
 
     Ori_Trajectories_List_List_List = []
     Trajectories_List_List_List = []
@@ -338,3 +340,4 @@ if __name__ == "__main__":
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
+

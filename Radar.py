@@ -17,10 +17,15 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
     plt.rcParams.update({'font.size': 6.5})
     plt.grid(linewidth=0.25, linestyle='--')
 
+    # data = np.array(scoreslist[i][4], scoreslist[i][7], scoreslist[i][1], scoreslist[i][2], scoreslist[i][3],
+    #                 scoreslist[i][0], scoreslist[i][6], scoreslist[i][5])
+
     ### data
     linelist = []
     for i in range(len(scoreslist)):
-        data = np.array(scoreslist[i])
+        z = [scoreslist[i][4], scoreslist[i][7], scoreslist[i][1], scoreslist[i][2], scoreslist[i][3], scoreslist[i][0],
+             scoreslist[i][6], scoreslist[i][5]]
+        data = np.array(z)
         data = np.concatenate((data, [data[0]]))
         li, = ax.plot(angles, data, linestylelist[i], linewidth=0.75, markersize=1.5)  # 线样 1
         linelist.append(li)
@@ -57,3 +62,4 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
                loc=5, bbox_to_anchor=(1.175, -0.06))
     # plt.figure(figsize = (2,2))
     plt.show()
+    plt.savefig("radar.jpg")
