@@ -8,7 +8,7 @@ r'''
 
 import numpy as np
 import pandas as pd
-import Similarity1, Radar1, os, copy
+import Similarity, Radar, os, copy
 from numpy.linalg import norm
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.pyplot as plt
@@ -250,7 +250,7 @@ def SimilarityIndexes(expList, simList, indextype):
 
     for i in range(len(expList)):
         for j in range(len(simList)):
-            index = Similarity1.SimilarityIndex(expList[i], simList[j], indextype)
+            index = Similarity.SimilarityIndex(expList[i], simList[j], indextype)
             index_sum += index
             number += 1
             index_max = max(index, index_max)
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     Labels = ['EXP', 'BM', 'SFM', 'VO']
     Line_Styles = ['ro-', 'ys--', 'b^-.', 'gv:', 'k--']
     Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
-                 r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
+                  r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
 
     Ori_Trajectories_List_List_List = []
     Trajectories_List_List_List = []
@@ -333,7 +333,8 @@ if __name__ == "__main__":
         Trajectories_List_List_List.append(TrajectoriesListList)
     Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
     for i in range(0, len(Trajectories_List_List_List)):
-        scores = Evaluation(Original_Point, Destination_Point, Trajectories_List_List_List[0], Trajectories_List_List_List[i],
+        scores = Evaluation(Original_Point, Destination_Point, Trajectories_List_List_List[0],
+                            Trajectories_List_List_List[i],
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
-    Radar1.RadarFigure(Scores_List, Line_Styles, Labels)
+    Radar.RadarFigure(Scores_List, Line_Styles, Labels)

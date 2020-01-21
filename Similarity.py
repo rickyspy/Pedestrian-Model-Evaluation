@@ -106,7 +106,7 @@ def DtwFD(p, q, zones):
     exp = zscore(exp)
     sim = zscore(sim)
     val = DtwX(exp, sim)
-    return val/len(sim), len(sim)
+    return val / len(sim), len(sim)
 
 
 def DtwDis(p, q, zones):
@@ -140,7 +140,7 @@ def DtwDis(p, q, zones):
         sim.append([i, sim_dis[i]])
 
     val = DtwX(exp, sim)
-    return val/len(sim), len(sim)
+    return val / len(sim), len(sim)
 
 
 def DtwTS(s1, s2):
@@ -257,9 +257,8 @@ def KSTest(expArray, simArray):
     return p
 
 
-
-
 xlist = []
+
 
 def SimilarityIndex(s1, s2, indextype):
     val = 0
