@@ -110,8 +110,8 @@ def DtwFD(p, q, zones):
 
 
 def DtwDis(p, q, zones):
-    val_max = max(p)
-    val_min = min(p)
+    val_max = max(max(p), max(q))
+    val_min = min(min(p), min(q))
     exp_dis = [0 for i in range(zones)]
     sim_dis = [0 for i in range(zones)]
     exp_dis_count = [0 for i in range(zones)]

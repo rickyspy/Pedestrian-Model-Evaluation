@@ -243,7 +243,7 @@ def CaculateSpeedTimeSeries(trajectories_list_list, cutoff_speed, fps):
 
 # ### The evalution approach contains four types of methods
 # ### Fundamental diagram, trajectories, distribution indexes, time-series indexes
-def SimilarityIndexes(expList, simList, indextype):
+def SimilarityIndexes(expList, simList, indextype, indexname):
     index = 0
     index_sum = 0
     number = 0
@@ -255,7 +255,8 @@ def SimilarityIndexes(expList, simList, indextype):
             index_sum += index
             number += 1
             index_max = max(index, index_max)
-
+    pd.DataFrame(expList).to_csv(r'ResultData\explist' + indextype + indexname + '.txt', mode='a', sep=' ')
+    pd.DataFrame(simList).to_csv(r'ResultData\simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
     index = index_sum / number
 
     return index
@@ -273,39 +274,45 @@ def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_traj
 
     # fd based data list
     index_fd = SimilarityIndexes(CalculateFundamentalDiagram(ori_exp_trajectories_list_list, fps),
-                                 CalculateFundamentalDiagram(ori_sim_trajectories_list_list, fps), 'dtw-fd')
+                                 CalculateFundamentalDiagram(ori_sim_trajectories_list_list, fps),
+                                 'dtw-fd', '-fd')
 
     # Distribution - Route length
     index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
-                                     CalculateRouteLengthList(sim_modi_trajectories_list_list), 'dtw-dis')
+                                     CalculateRouteLengthList(sim_modi_trajectories_list_list),
+                                     'dtw-dis', '-RL')
 
     # Distribution - Travel Time
     index_Dis_TT = SimilarityIndexes(CalculateTravelTimeList(exp_modi_trajectories_list_list, fps),
-                                     CalculateTravelTimeList(sim_modi_trajectories_list_list, fps), 'dtw-dis')
+                                     CalculateTravelTimeList(sim_modi_trajectories_list_list, fps),
+                                     'dtw-dis', '-TT')
 
     # Distribution - Speed
     index_Dis_Speed = SimilarityIndexes(CalculateSpeedList(exp_modi_trajectories_list_list, fps),
-                                        CalculateSpeedList(sim_modi_trajectories_list_list, fps), 'dtw-dis')
+                                        CalculateSpeedList(sim_modi_trajectories_list_list, fps),
+                                        'dtw-dis', '-Speed')
 
     # Times series - Original position
     index_TS_OriPoint = SimilarityIndexes(
         CalculatePointTimeSeries(exp_trajectories_list_list, oripoint, cutoff_distance),
         CalculatePointTimeSeries(sim_trajectories_list_list, oripoint, cutoff_distance),
-        "dtw-ts")
+        "dtw-ts", '-oripoint')
 
     # Times series - Destination position
     index_TS_DestPoint = SimilarityIndexes(
         CalculatePointTimeSeries(exp_trajectories_list_list, destpoint, cutoff_distance),
         CalculatePointTimeSeries(sim_trajectories_list_list, destpoint, cutoff_distance),
-        "dtw-ts")
+        "dtw-ts", '-destpoint')
 
     # Time series - Speed
     index_TS_Speed = SimilarityIndexes(CaculateSpeedTimeSeries(exp_trajectories_list_list, 0.1, fps),
-                                       CaculateSpeedTimeSeries(sim_trajectories_list_list, 0.1, fps), "dtw-ts")
+                                       CaculateSpeedTimeSeries(sim_trajectories_list_list, 0.1, fps),
+                                       "dtw-ts", '-Speed')
 
     # Microscopic trajectories
     index_Trajectories = SimilarityIndexes(exp_modi_trajectories_list_list,
-                                           sim_modi_trajectories_list_list, "dtw-sort")
+                                           sim_modi_trajectories_list_list,
+                                           "dtw-sort", 'trajectroies')
 
     scores = [index_fd,  # macroscopic fd
               index_Dis_RL, index_Dis_TT, index_Dis_Speed,  # static distribution
@@ -331,8 +338,8 @@ if __name__ == "__main__":
     Trajectories_List_List_List = []
     Scores_List = []
     for i in range(0, len(Labels)):
-        TrajectoriesListList = InputTrajectories(Folder_Name + "\\" + Labels[i])
-        Trajectories_List_List_List.append(TrajectoriesListList)
+        Trajectories_List_List = InputTrajectories(Folder_Name + "\\" + Labels[i])
+        Trajectories_List_List_List.append(Trajectories_List_List)
     Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
     for i in range(0, len(Trajectories_List_List_List)):
         scores = Evaluation(Original_Point, Destination_Point, Trajectories_List_List_List[0],
@@ -340,4 +347,3 @@ if __name__ == "__main__":
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
-
