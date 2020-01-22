@@ -79,8 +79,8 @@ def DtwX(s1, s2):
 
 
 def DtwFD(p, q, zones):
-    val_max = max(p[0])
-    val_min = min(p[0])
+    val_max = np.max(np.array(p), axis=0)[0]
+    val_min = np.min(np.array(p), axis=0)[0]
     exp_dis = [0 for i in range(zones)]
     sim_dis = [0 for i in range(zones)]
     exp_dis_count = [0 for i in range(zones)]
@@ -99,7 +99,11 @@ def DtwFD(p, q, zones):
     exp = []
     sim = []
     for i in range(zones):  # normalization
+        if exp_dis_count[i] == 0:
+            exp_dis_count[i] = 1
         exp_dis[i] /= exp_dis_count[i]
+        if sim_dis_count[i] == 0:
+            sim_dis_count[i] = 1
         sim_dis[i] /= sim_dis_count[i]
         exp.append([i, exp_dis[i]])
         sim.append([i, sim_dis[i]])
