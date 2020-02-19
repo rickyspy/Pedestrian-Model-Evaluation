@@ -17,15 +17,17 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 
 # import trajectories
 def InputTrajectories(file_folder):
+    # file_folder = "BaseData"
     g = os.walk(file_folder)
     files = []
     for path, dir_list, file_list in g:
         for file in file_list:
             files.append(file)
+        # print(dir_list)
 
     trajectories_list_list = []
     for input_file in files:
-        ori_data = pd.read_csv(file_folder + "\\" + input_file, header=None, sep="\t")
+        ori_data = pd.read_csv(file_folder + "//" + input_file, header=None, sep="\t")
         trajectories_list = []
         trajectories = []
         for i in range(ori_data.shape[0]):
@@ -255,8 +257,8 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
             index_sum += index
             number += 1
             index_max = max(index, index_max)
-    pd.DataFrame(expList).to_csv(r'ResultData\explist' + indextype + indexname + '.txt', mode='a', sep=' ')
-    pd.DataFrame(simList).to_csv(r'ResultData\simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
+    pd.DataFrame(expList).to_csv(r'ResultData//explist' + indextype + indexname + '.txt', mode='a', sep=' ')
+    pd.DataFrame(simList).to_csv(r'ResultData//simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
     index = index_sum / number
 
     return index
@@ -338,7 +340,7 @@ if __name__ == "__main__":
     Trajectories_List_List_List = []
     Scores_List = []
     for i in range(0, len(Labels)):
-        Trajectories_List_List = InputTrajectories(Folder_Name + "\\" + Labels[i])
+        Trajectories_List_List = InputTrajectories(Folder_Name + "//" + Labels[i])
         Trajectories_List_List_List.append(Trajectories_List_List)
     Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
     for i in range(0, len(Trajectories_List_List_List)):
@@ -347,3 +349,4 @@ if __name__ == "__main__":
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
+    print("Finished!!")
