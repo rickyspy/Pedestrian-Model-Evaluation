@@ -107,39 +107,49 @@ def DtwFD(p, q, zones):
         sim_dis[i] /= sim_dis_count[i]
         exp.append([i, exp_dis[i]])
         sim.append([i, sim_dis[i]])
-    exp = zscore(exp)
-    sim = zscore(sim)
+    # exp = zscore(exp)
+    # sim = zscore(sim)
     val = DtwX(exp, sim)
     return val / len(sim), len(sim)
 
 
 def DtwDis(p, q, zones):
-    val_max = max(max(p), max(q))
-    val_min = min(min(p), min(q))
-    exp_dis = [0 for i in range(zones)]
-    sim_dis = [0 for i in range(zones)]
-    exp_dis_count = [0 for i in range(zones)]
-    sim_dis_count = [0 for i in range(zones)]
+    # val_max = max(max(p), max(q))
+    # val_min = min(min(p), min(q))
+    val_max = max(p)
+    val_min = min(p)
+    exp_dis = [0 for i in range(zones + 2)]
+    sim_dis = [0 for i in range(zones + 2)]
+    exp_dis_count = [0 for i in range(zones + 2)]
+    sim_dis_count = [0 for i in range(zones + 2)]
 
     # statistics
     for i in range(len(p)):
-        zone_num = min(max(int((p[i] - val_min) // ((val_max - val_min) / 10)), 0), zones - 1)
+        zone_num = min(max(int((p[i] - val_min) // ((val_max - val_min) / zones)) + 1, 0), zones + 1)
         exp_dis_count[zone_num] += 1
-        exp_dis[zone_num] += p[i]
+        # exp_dis[zone_num] += p[i]
     for i in range(len(q)):
-        zone_num = min(max(int((q[i] - val_min) // ((val_max - val_min) / 10)), 0), zones - 1)
+        zone_num = min(max(int((q[i] - val_min) // ((val_max - val_min) / zones)) + 1, 0), zones + 1)
         sim_dis_count[zone_num] += 1
-        sim_dis[zone_num] += q[i]
+        # sim_dis[zone_num] += q[i]
 
-    for i in range(zones):  # normalization
-        if exp_dis_count[i] != 0:
-            exp_dis[i] /= exp_dis_count[i]
-        if sim_dis_count[i] != 0:
-            sim_dis[i] /= sim_dis_count[i]
+    for i in range(zones + 2):  # normalization
+        if i == 0:
+            exp_dis[i] = exp_dis_count[i]
+            sim_dis[i] = sim_dis_count[i]
+        else:
+            exp_dis[i] = exp_dis_count[i] + exp_dis[i - 1]
+            sim_dis[i] = sim_dis_count[i] + sim_dis[i - 1]
+
+    # for i in range(zones):  # normalization
+    #     if exp_dis_count[i] != 0:
+    #         exp_dis[i] /= exp_dis_count[i]
+    #     if sim_dis_count[i] != 0:
+    #         sim_dis[i] /= sim_dis_count[i]
 
     exp = []
     sim = []
-    for i in range(zones):  # normalization
+    for i in range(zones + 2):  # normalization
         exp.append([i, exp_dis[i]])
         sim.append([i, sim_dis[i]])
 
@@ -148,6 +158,7 @@ def DtwDis(p, q, zones):
 
 
 def DtwTS(s1, s2):
+
     return DtwX(s1, s2) / len(s2), len(s2)
 
 
@@ -177,6 +188,10 @@ def CalculateRouteLength(trajectories_list):
 
 
 def TrajectoriesSort(ts_list):
+    for i in range(len(ts_list)):  # adjustment of trajectories length
+        ts_list[i].insert(0, (0, 0))
+        ts_list[i].append((20, 0))
+
     route_length_list = CalculateRouteLength(ts_list)
     ts_list_updated = []
     for i in range(len(ts_list)):
@@ -266,22 +281,19 @@ xlist = []
 
 def SimilarityIndex(s1, s2, indextype):
     val = 0
-    fixvalue = [15, 15, 15, 5]
+    fixvalue = [15, 30, 30, 5]
     if indextype == 'dtw-fd':
         val, length = DtwFD(s1, s2, 10)
         xlist.append(['dtw-fd', length, round(val, 2), round(val / length, 2)])
-        val = (fixvalue[0] - val) / fixvalue[0]
     elif indextype == 'dtw-dis':
-        val, length = DtwDis(s1, s2, 5)
+        val, length = DtwDis(s1, s2, 8)
         xlist.append(['dtw-dis', length, round(val, 2)])
-        val = (fixvalue[1] - val) / fixvalue[1]
     elif indextype == 'dtw-ts':
         val, length = DtwTS(s1, s2)
         xlist.append(['dtw-ts', length, round(val, 2)])
-        val = (fixvalue[2] - val) / fixvalue[2]
     elif indextype == 'dtw-sort':
         val, length = DtwSorted(s1, s2)
         xlist.append(['dtw-sort', length, round(val, 2)])
-        val = (fixvalue[3] - val) / fixvalue[3]
-
+        # val = (fixvalue[3] - val) / fixvalue[3]
+        # val = 2 * exp(0 - val) / (1 + exp(0 - val))
     return val

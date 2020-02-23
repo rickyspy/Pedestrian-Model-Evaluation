@@ -41,7 +41,7 @@ def InputTrajectories(file_folder):
     return trajectories_list_list
 
 
-def NormolizedTrajectories(ori_trajectories_list_list, ori_position, dest_position):
+def NormolizedTrajectories(ori_trajectories_list_list):
     updated_trajectories_list_list = []
     for j in range(len(ori_trajectories_list_list)):
         updated_trajectories_list = []
@@ -168,9 +168,11 @@ def CalculateRouteLengthList(trajectories_list_list):
         route_length_list = []
         for j in range(len(trajectories_list_list[i])):
             length = 0
+            length = length + norm(np.array(Original_Point) - np.array(trajectories_list_list[i][j][0]))
             for k in range(len(trajectories_list_list[i][j]) - 1):
                 length = length + norm(
                     np.array(trajectories_list_list[i][j][k + 1]) - np.array(trajectories_list_list[i][j][k]))
+            length = length + norm(np.array(Destination_Point) - np.array(trajectories_list_list[i][j][-1]))
             route_length_list.append(length)
         route_length_list_list.append(route_length_list)
     return route_length_list_list
@@ -254,8 +256,9 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
     for i in range(len(expList)):
         for j in range(len(simList)):
             index = Similarity.SimilarityIndex(expList[i], simList[j], indextype)
-            index_sum += index
-            number += 1
+            if index != 0:
+                index_sum += index
+                number += 1
             index_max = max(index, index_max)
     pd.DataFrame(expList).to_csv(r'ResultData//explist' + indextype + indexname + '.txt', mode='a', sep=' ')
     pd.DataFrame(simList).to_csv(r'ResultData//simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
@@ -264,11 +267,19 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
     return index
 
 
+def ScoreNormalization(scorelist):
+    for i in range(len(scorelist) - 1, -1, -1):
+        for j in range(len(scorelist[i])):
+            scorelist[i][j] = (scorelist[i][j] - scorelist[0][j]) / scorelist[0][j]
+            scorelist[i][j] = 2 * np.exp(0 - scorelist[i][j]) / (1 + np.exp(0 - scorelist[i][j]))
+    return scorelist
+
+
 # ### Evaluation scores
 def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_trajectories_list_list, cutoff_distance,
                fps):
-    exp_trajectories_list_list = NormolizedTrajectories(ori_exp_trajectories_list_list, oripoint, destpoint)
-    sim_trajectories_list_list = NormolizedTrajectories(ori_sim_trajectories_list_list, oripoint, destpoint)
+    exp_trajectories_list_list = NormolizedTrajectories(ori_exp_trajectories_list_list)
+    sim_trajectories_list_list = NormolizedTrajectories(ori_sim_trajectories_list_list)
     exp_modi_trajectories_list_list = FilterTrajectories(exp_trajectories_list_list, oripoint, destpoint,
                                                          cutoff_distance)
     sim_modi_trajectories_list_list = FilterTrajectories(sim_trajectories_list_list, oripoint, destpoint,
@@ -279,10 +290,10 @@ def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_traj
                                  CalculateFundamentalDiagram(ori_sim_trajectories_list_list, fps),
                                  'dtw-fd', '-fd')
 
-    # Distribution - Route length
-    index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
-                                     CalculateRouteLengthList(sim_modi_trajectories_list_list),
-                                     'dtw-dis', '-RL')
+    # # Distribution - Route length
+    # index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
+    #                                  CalculateRouteLengthList(sim_modi_trajectories_list_list),
+    #                                  'dtw-dis', '-RL')
 
     # Distribution - Travel Time
     index_Dis_TT = SimilarityIndexes(CalculateTravelTimeList(exp_modi_trajectories_list_list, fps),
@@ -293,6 +304,11 @@ def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_traj
     index_Dis_Speed = SimilarityIndexes(CalculateSpeedList(exp_modi_trajectories_list_list, fps),
                                         CalculateSpeedList(sim_modi_trajectories_list_list, fps),
                                         'dtw-dis', '-Speed')
+
+    # Distribution - Route length
+    index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
+                                     CalculateRouteLengthList(sim_modi_trajectories_list_list),
+                                     'dtw-dis', '-RL')
 
     # Times series - Original position
     index_TS_OriPoint = SimilarityIndexes(
@@ -320,6 +336,7 @@ def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_traj
               index_Dis_RL, index_Dis_TT, index_Dis_Speed,  # static distribution
               index_TS_OriPoint, index_TS_DestPoint, index_TS_Speed,  # dynamic time series
               index_Trajectories]  # microscopic trajectories
+
     return scores
 
 
@@ -330,7 +347,7 @@ if __name__ == "__main__":
     Cutoff_Distance = 1  # cut-off distance
     Ori_Fps = 25  # flames per second
     Dest_Fps = 5  # flames per second
-    Labels = ['EXP', 'BM', 'SFM', 'VO']
+    Labels = ['EXP', 'BM', 'SFM']
     Line_Styles = ['k--', 'ro-', 'ys--', 'b^-.', 'gv:']
     # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
     #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
@@ -348,5 +365,6 @@ if __name__ == "__main__":
                             Trajectories_List_List_List[i],
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
+    Scores_List = ScoreNormalization(Scores_List)
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
     print("Finished!!")

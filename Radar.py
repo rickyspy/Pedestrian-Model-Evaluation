@@ -28,8 +28,8 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
         linelist.append(li)
 
     ax.set_thetagrids(angles * 180 / np.pi, labels, fontproperties="Calibri")
-    plt.ylim(-0.1, 1)  # y axis size
-    plt.yticks(np.arange(0, 1, step=0.5))
+    plt.ylim(-0.1, 1.2)  # y axis size
+    plt.yticks(np.arange(0, 1.5, step=0.5))
 
     # label rotation
     plt.gcf().canvas.draw()
