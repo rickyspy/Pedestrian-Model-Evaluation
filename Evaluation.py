@@ -347,8 +347,8 @@ if __name__ == "__main__":
     Cutoff_Distance = 1  # cut-off distance
     Ori_Fps = 25  # flames per second
     Dest_Fps = 5  # flames per second
-    Labels = ['EXP', 'BM', 'SFM']
-    Line_Styles = ['k--', 'ro-', 'ys--', 'b^-.', 'gv:']
+    Labels = ['EXP', 'SFM', 'BM']
+    Line_Styles = ['k--', 'b^-.', 'ro-', 'ys--', 'gv:']
     # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
     #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
     Folder_Name = r'BaseData'

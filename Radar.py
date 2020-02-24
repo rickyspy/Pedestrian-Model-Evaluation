@@ -54,7 +54,7 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
 
     # 设置legend
     # modelnamelist.remove('EXP')
-    plt.legend(handles=linelist, labels=modelnamelist, fontsize=5,
+    plt.legend(handles=linelist, labels=modelnamelist, fontsize=8,
                labelspacing=0.25, borderpad=None, edgecolor='white',  # borderaxespad = None,
                loc=5, bbox_to_anchor=(1.175, -0.06))
     # plt.figure(figsize = (2,2))
