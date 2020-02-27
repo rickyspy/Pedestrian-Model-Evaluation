@@ -28,8 +28,10 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
         linelist.append(li)
 
     ax.set_thetagrids(angles * 180 / np.pi, labels, fontproperties="Calibri")
-    plt.ylim(-0.1, 1.2)  # y axis size
+    plt.ylim(-0.25, 1.25)  # y axis size
     plt.yticks(np.arange(0, 1.5, step=0.5))
+
+    # plt.yticks.grid = True
 
     # label rotation
     plt.gcf().canvas.draw()
@@ -54,8 +56,8 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
 
     # 设置legend
     # modelnamelist.remove('EXP')
-    plt.legend(handles=linelist, labels=modelnamelist, fontsize=8,
-               labelspacing=0.25, borderpad=None, edgecolor='white',  # borderaxespad = None,
+    plt.legend(handles=linelist, labels=modelnamelist, fontsize=7,
+               labelspacing=0.075, borderpad=None, edgecolor='white',  # borderaxespad = None,
                loc=5, bbox_to_anchor=(1.175, -0.06))
     # plt.figure(figsize = (2,2))
     plt.savefig("radar.jpg")

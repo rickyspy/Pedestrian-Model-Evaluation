@@ -348,7 +348,7 @@ if __name__ == "__main__":
     Ori_Fps = 25  # flames per second
     Dest_Fps = 5  # flames per second
     Labels = ['EXP', 'SFM', 'HM', 'BM']
-    Line_Styles = ['k--', 'b^-.', 'ys--', 'ro-', 'gv:']
+    Line_Styles = ['k--', 'b^-.', 'gs--', 'ro-', 'yv:']
     # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
     #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
     Folder_Name = r'BaseData'
