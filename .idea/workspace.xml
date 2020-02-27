@@ -4,7 +4,7 @@
     <list default="true" id="5ec7bea8-312a-462b-810a-40f0438f6de9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Radar.py" beforeDir="false" afterPath="$PROJECT_DIR$/Radar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Similarity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Similarity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/radar.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/radar.jpg" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -66,6 +66,14 @@
       <option name="presentableId" value="Default" />
       <updated>1579592345739</updated>
     </task>
+    <task id="LOCAL-00001" summary="update">
+      <created>1582522122852</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1582522122852</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

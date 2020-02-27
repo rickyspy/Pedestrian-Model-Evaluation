@@ -158,7 +158,6 @@ def DtwDis(p, q, zones):
 
 
 def DtwTS(s1, s2):
-
     return DtwX(s1, s2) / len(s2), len(s2)
 
 

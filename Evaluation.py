@@ -212,7 +212,7 @@ def CalculateSpeedList(trajectories_list_list, fps):
 
 
 # Time series - Distance to original point and destination point
-def CalculatePointTimeSeries(trajectories_list_list, position, cutoff_distance):
+def CalculatePointTimeSeries(trajectories_list_list, position, cutoff_distance, fps):
     distance_ts_list = []
     for k in range(len(trajectories_list_list)):
         distance_ts = []
@@ -223,7 +223,7 @@ def CalculatePointTimeSeries(trajectories_list_list, position, cutoff_distance):
             distance = distance / len(trajectories_list_list[k])
             if (cutoff_distance < distance
                     < norm(np.array(Original_Point) - np.array(Destination_Point)) - cutoff_distance):
-                distance_ts.append((j, distance))
+                distance_ts.append((len(distance_ts), distance))
         distance_ts_list.append(distance_ts)
     return distance_ts_list
 
@@ -240,7 +240,7 @@ def CaculateSpeedTimeSeries(trajectories_list_list, cutoff_speed, fps):
                     np.array(trajectories_list_list[k][i][j + 1]) - np.array(trajectories_list_list[k][i][j])) * fps
             speed = speed / len(trajectories_list_list[k])
             if speed > cutoff_speed:
-                speed_ts.append((j, speed))
+                speed_ts.append((len(speed_ts), speed))
         speed_ts_list.append(speed_ts)
     return speed_ts_list
 
@@ -312,14 +312,14 @@ def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_traj
 
     # Times series - Original position
     index_TS_OriPoint = SimilarityIndexes(
-        CalculatePointTimeSeries(exp_trajectories_list_list, oripoint, cutoff_distance),
-        CalculatePointTimeSeries(sim_trajectories_list_list, oripoint, cutoff_distance),
+        CalculatePointTimeSeries(exp_trajectories_list_list, oripoint, cutoff_distance, fps),
+        CalculatePointTimeSeries(sim_trajectories_list_list, oripoint, cutoff_distance, fps),
         "dtw-ts", '-oripoint')
 
     # Times series - Destination position
     index_TS_DestPoint = SimilarityIndexes(
-        CalculatePointTimeSeries(exp_trajectories_list_list, destpoint, cutoff_distance),
-        CalculatePointTimeSeries(sim_trajectories_list_list, destpoint, cutoff_distance),
+        CalculatePointTimeSeries(exp_trajectories_list_list, destpoint, cutoff_distance, fps),
+        CalculatePointTimeSeries(sim_trajectories_list_list, destpoint, cutoff_distance, fps),
         "dtw-ts", '-destpoint')
 
     # Time series - Speed
@@ -347,8 +347,8 @@ if __name__ == "__main__":
     Cutoff_Distance = 1  # cut-off distance
     Ori_Fps = 25  # flames per second
     Dest_Fps = 5  # flames per second
-    Labels = ['EXP', 'SFM', 'BM']
-    Line_Styles = ['k--', 'b^-.', 'ro-', 'ys--', 'gv:']
+    Labels = ['EXP', 'SFM', 'HM', 'BM']
+    Line_Styles = ['k--', 'b^-.', 'ys--', 'ro-', 'gv:']
     # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
     #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
     Folder_Name = r'BaseData'
