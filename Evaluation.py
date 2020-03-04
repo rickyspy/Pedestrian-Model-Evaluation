@@ -262,14 +262,17 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
             index_max = max(index, index_max)
     pd.DataFrame(expList).to_csv(r'ResultData//explist' + indextype + indexname + '.txt', mode='a', sep=' ')
     pd.DataFrame(simList).to_csv(r'ResultData//simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
+    if number == 0:
+        number = 1
     index = index_sum / number
-
     return index
 
 
 def ScoreNormalization(scorelist):
     for i in range(len(scorelist) - 1, -1, -1):
         for j in range(len(scorelist[i])):
+            if scorelist[0][j] ==0:
+                scorelist[0][j] = 0.1
             scorelist[i][j] = (scorelist[i][j] - scorelist[0][j]) / scorelist[0][j]
             scorelist[i][j] = 2 * np.exp(0 - scorelist[i][j]) / (1 + np.exp(0 - scorelist[i][j]))
     return scorelist
@@ -366,5 +369,7 @@ if __name__ == "__main__":
                             Cutoff_Distance, Dest_Fps)
         Scores_List.append(scores)
     Scores_List = ScoreNormalization(Scores_List)
+
+    Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
     print("Finished!!")
