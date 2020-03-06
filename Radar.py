@@ -129,4 +129,5 @@ def SoloRadarFigure(scoreslist, linestylelist, modelnamelist):
         average_score = int(average_score*100)
         plt.text(-1.5, 0, average_score, size=88, color='gray', alpha=0.8, horizontalalignment='center',
                  verticalalignment='center')
-        plt.savefig("radar-" + str(i) + ".jpg")
+        plt.savefig(r"ResultPics//radar-" + str(i) + ".jpg")
+
