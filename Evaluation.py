@@ -370,6 +370,7 @@ if __name__ == "__main__":
         Scores_List.append(scores)
     Scores_List = ScoreNormalization(Scores_List)
 
-    Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
+
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
+    Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
     print("Finished!!")

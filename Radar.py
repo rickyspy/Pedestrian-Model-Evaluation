@@ -120,9 +120,10 @@ def SoloRadarFigure(scoreslist, linestylelist, modelnamelist):
 
         # 设置legend
         # modelnamelist.remove('EXP')
-        plt.legend(handles=linelist, labels=modelnamelist[i], fontsize=7,
+        plt.legend(handles=linelist, labels=modelnamelist, fontsize=7,
                    labelspacing=0.075, borderpad=None, edgecolor='white',  # borderaxespad = None,
                    loc=5, bbox_to_anchor=(1.075, -0.06))
+        modelnamelist.pop(0)
         # plt.figure(figsize = (2,2))
         average_score = scoreslist[i][0] * 0.25 + (scoreslist[i][1] + scoreslist[i][2] + scoreslist[i][3]) / 3 * 0.25 \
                         + (scoreslist[i][4] + scoreslist[i][5] + scoreslist[i][6]) / 3 * 0.25 + scoreslist[i][7] * 0.25
