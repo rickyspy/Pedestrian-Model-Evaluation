@@ -5,17 +5,7 @@ import Evaluation
 
 
 def Distance(p1, p2):
-    dist = 0.0
-    elem_type = type(p1)
-    if elem_type == float or elem_type == int:
-        dist = float(abs(p1 - p2))
-    else:
-        sumval = 0.0
-        for i in range(len(p1)):
-            sumval += pow(p1[i] - p2[i], 2)
-        dist = pow(sumval, 0.5)
-    return dist
-
+    return np.linalg.norm(np.array(p1)-np.array(p2))
 
 def DtwX(s1, s2):
     w = len(s1)
