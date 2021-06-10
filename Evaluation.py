@@ -27,7 +27,7 @@ def InputTrajectories(file_folder):
 
     trajectories_list_list = []
     for input_file in files:
-        ori_data = pd.read_csv(file_folder + "//" + input_file, header=None, sep="\t")
+        ori_data = pd.read_csv(os.path.join(file_folder, input_file), header=None, sep="\t")
         trajectories_list = []
         trajectories = []
         for i in range(ori_data.shape[0]):
@@ -260,8 +260,10 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
                 index_sum += index
                 number += 1
             index_max = max(index, index_max)
-    pd.DataFrame(expList).to_csv(r'ResultData//explist' + indextype + indexname + '.txt', mode='a', sep=' ')
-    pd.DataFrame(simList).to_csv(r'ResultData//simlist' + indextype + indexname + '.txt', mode='a', sep=' ')
+    exp_filename = os.path.join('ResultData', 'explist' + indextype + indexname + '.txt')
+    sim_filename = os.path.join('ResultData', 'simlist' + indextype + indexname + '.txt')
+    pd.DataFrame(expList).to_csv(exp_filename, mode='a', sep=' ')
+    pd.DataFrame(simList).to_csv(sim_filename, mode='a', sep=' ')
     if number == 0:
         number = 1
     index = index_sum / number
@@ -360,7 +362,7 @@ if __name__ == "__main__":
     Trajectories_List_List_List = []
     Scores_List = []
     for i in range(0, len(Labels)):
-        Trajectories_List_List = InputTrajectories(Folder_Name + "//" + Labels[i])
+        Trajectories_List_List = InputTrajectories(os.path.join(Folder_Name, Labels[i]))
         Trajectories_List_List_List.append(Trajectories_List_List)
     Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
     for i in range(0, len(Trajectories_List_List_List)):
