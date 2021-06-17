@@ -13,21 +13,16 @@ from numpy.linalg import norm
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
 
-# global parameters
-
 # import trajectories
 def InputTrajectories(file_folder):
-    # file_folder = "BaseData"
     g = os.walk(file_folder)
     files = []
     for path, dir_list, file_list in g:
         for file in file_list:
             files.append(file)
-        # print(dir_list)
 
     trajectories_list_list = []
-    for input_file in files:
-        ori_data = pd.read_csv(os.path.join(file_folder, input_file), header=None, sep="\t")
+
         trajectories_list = []
         trajectories = []
         for i in range(ori_data.shape[0]):
@@ -39,46 +34,6 @@ def InputTrajectories(file_folder):
                 trajectories_list.append(trajectories)
         trajectories_list_list.append(trajectories_list)
     return trajectories_list_list
-
-
-def NormolizedTrajectories(ori_trajectories_list_list):
-    updated_trajectories_list_list = []
-    for j in range(len(ori_trajectories_list_list)):
-        updated_trajectories_list = []
-        for k in range(len(ori_trajectories_list_list[j])):
-            updated_trajectories = []
-            first_trajectories = ori_trajectories_list_list[j][k][0]
-            last_trajectories = ori_trajectories_list_list[j][k][-1]
-            angle = AngleRotation(Original_Point, Destination_Point, first_trajectories, last_trajectories)
-            for h in range(len(ori_trajectories_list_list[j][k])):  # rotation
-                point = ori_trajectories_list_list[j][k][h]
-                updated_point = TrajecotoriesNorAdjustment(point, first_trajectories, Original_Point, angle)
-                updated_trajectories.append(updated_point)
-            if abs(np.max(updated_trajectories, axis=0)[1]) < abs(np.min(updated_trajectories, axis=0)[1]):  # mirror
-                for h in range(len(updated_trajectories)):  # mirror
-                    updated_trajectories[h] = ((updated_trajectories[h][0], -updated_trajectories[h][1]))
-            updated_trajectories_list.append(updated_trajectories)
-        updated_trajectories_list_list.append(updated_trajectories_list)
-    return updated_trajectories_list_list
-
-
-def AngleRotation(ori_position_1, dest_position_1, ori_position_2, dest_position_2):
-    a = np.array(dest_position_1) - np.array(ori_position_1)
-    b = np.array(dest_position_2) - np.array(ori_position_2)
-    dot = a[0] * b[0] + a[1] * b[1]
-    det = a[0] * b[1] - a[1] * b[0]
-    return np.arctan2(det, dot)
-
-
-def TrajecotoriesNorAdjustment(point, start_point, original_point, angle):
-    displacement = np.array(original_point) - np.array(start_point)
-    updated_point = np.array(point) + np.array(displacement)
-    a = updated_point
-    b = original_point
-    angle = -angle
-    updated_point = (((a[0] - b[0]) * np.cos(angle) - (a[1] - b[1]) * np.sin(angle) + b[0],
-                      (a[0] - b[0]) * np.sin(angle) + (a[1] - b[1]) * np.cos(angle) + b[1]))
-    return updated_point
 
 
 def FPSAdjustment(ori_trajectories_list_list_list, orifps, destfps):
@@ -100,16 +55,16 @@ def FPSAdjustment(ori_trajectories_list_list_list, orifps, destfps):
 
 
 # Filter unnecessary trajectories
-def FilterTrajectories(tra_list_list, ori_point, dest_point, cutoff_distance):
+def FilterTrajectories(tra_list_list, cutoff_distance):
     updated_tra_list_list = copy.deepcopy(tra_list_list)
     for k in range(len(tra_list_list)):
         for j in range(len(tra_list_list[k])):
             remove_list = []
             for i in range(len(tra_list_list[k][j])):
-                if norm(np.array(tra_list_list[k][j][i]) - np.array(ori_point)) < cutoff_distance:
+                if norm(np.array(tra_list_list[k][j][i]) - np.array(tra_list_list[k][j][0])) < cutoff_distance:
                     remove_list.append(i)
             for i in range(len(tra_list_list[k][j])):
-                if norm(np.array(tra_list_list[k][j][i]) - np.array(dest_point)) < cutoff_distance:
+                if norm(np.array(tra_list_list[k][j][i]) - np.array(tra_list_list[k][j][-1])) < cutoff_distance:
                     remove_list.append(i)
             remove_list.reverse()
 
@@ -123,16 +78,25 @@ def CalculateFundamentalDiagram(trajectories_list_list, fps):
     fd_list = []
     for i in range(len(trajectories_list_list)):
         fd = []
-        for j in range(len(trajectories_list_list[i][0]) - 1):  # for each time step we have a voronoi diagram
+        temp_timestep = 0
+
+        for x in range(len(trajectories_list_list[i])):
+            if len(trajectories_list_list[i][x]) > temp_timestep:
+                temp_timestep = len(trajectories_list_list[i][x])
+
+        for j in range(temp_timestep - 1):  # for each time step we have a voronoi diagram
             ped_list = []
             speed_list = []
-            density_list = []
             for k in range(len(trajectories_list_list[i])):  # add the individual position
-                ped_list.append(list(trajectories_list_list[i][k][j]))
-                speed_list.append((np.array(trajectories_list_list[i][k][j + 1])
-                                   - np.array(trajectories_list_list[i][k][j])) * fps)
+                if j < len(trajectories_list_list[i][k]) - 1:
+                    ped_list.append(list(trajectories_list_list[i][k][j]))
+                    speed_list.append((np.array(trajectories_list_list[i][k][j + 1])
+                                       - np.array(trajectories_list_list[i][k][j])) * fps)
             # calculation
-            vor = Voronoi(ped_list)
+            if len(ped_list) > 2:
+                vor = Voronoi(ped_list)
+            # fig = voronoi_plot_2d(vor)
+            # plt.show()
             for k in range(len(vor.regions) - 1):
                 if not -1 in vor.regions[k]:
                     polygon = [vor.vertices[ii] for ii in vor.regions[k]]
@@ -161,6 +125,60 @@ def calculate_triangle_area(point_a, point_b, point_c):
 
 
 # Trajectories
+
+# Microscopic - Speed
+def CalculateSpeedData(trajectoies_list_list, fps):
+    speed_list_list = []
+    for i in range(len(trajectoies_list_list)):
+        speed_list = []
+        for j in range(1, len(trajectoies_list_list[i])):
+            for k in range(1, len(trajectoies_list_list[i][j])):
+                coordinate_1 = trajectoies_list_list[i][j][k - 1]
+                coordinate_2 = trajectoies_list_list[i][j][k]
+
+                # calculate speed element
+                speed = norm(np.array(coordinate_2) - np.array(coordinate_1)) * fps
+                speed_list.append(speed)
+        speed_list_list.append(speed_list)
+    return speed_list_list
+
+
+# Microscopic - Direction
+def CalculateDirectionData(trajectoies_list_list):
+    direction_list_list = []
+    for i in range(len(trajectoies_list_list)):
+        direction_list = []
+        for j in range(1, len(trajectoies_list_list[i])):
+            for k in range(1, len(trajectoies_list_list[i][j])):
+                coordinate_1 = trajectoies_list_list[i][j][k - 1]
+                coordinate_2 = trajectoies_list_list[i][j][k]
+                coordinate_3 = trajectoies_list_list[i][j][-1]
+                z1 = np.array(coordinate_2) - np.array(coordinate_1)
+                z2 = np.array(coordinate_3) - np.array(coordinate_1)
+
+                #  direction set
+                if norm(z1) == 0 or norm(z2) == 0:
+                    continue
+                direction_vector_1 = z1 / norm(z1)
+                direction_vector_2 = z2 / norm(z2)
+
+                s = np.dot(direction_vector_1, direction_vector_2)
+
+                # e_x, e_y, s = direction_vector_1[0], direction_vector_1[1], 0
+                # if e_x > 0:
+                #     s = np.arctan(e_y / e_x)
+                # elif e_x < 0 and e_y >= 0:
+                #     s = np.arctan(e_y / e_x) + np.pi
+                # elif e_x < 0 and e_y < 0:
+                #     s = np.arctan(e_y / e_x) - np.pi
+                # else:
+                #     s = np.pi / 2
+
+                direction_list.append(s)
+        direction_list_list.append(direction_list)
+    return direction_list_list
+
+
 # Distribution - Route Length
 def CalculateRouteLengthList(trajectories_list_list):
     route_length_list_list = []
@@ -168,11 +186,10 @@ def CalculateRouteLengthList(trajectories_list_list):
         route_length_list = []
         for j in range(len(trajectories_list_list[i])):
             length = 0
-            length = length + norm(np.array(Original_Point) - np.array(trajectories_list_list[i][j][0]))
+            # length = length + norm(np.array(Original_Point) - np.array(trajectories_list_list[i][j][0]))
             for k in range(len(trajectories_list_list[i][j]) - 1):
                 length = length + norm(
                     np.array(trajectories_list_list[i][j][k + 1]) - np.array(trajectories_list_list[i][j][k]))
-            length = length + norm(np.array(Destination_Point) - np.array(trajectories_list_list[i][j][-1]))
             route_length_list.append(length)
         route_length_list_list.append(route_length_list)
     return route_length_list_list
@@ -193,65 +210,49 @@ def CalculateTravelTimeList(trajectories_list_list, fps):
     return travel_time_list_list
 
 
-# Distribution - Speed
-def CalculateSpeedList(trajectories_list_list, fps):
-    speed_list_list = []
-    for i in range(len(trajectories_list_list)):
-        speed_list = []
-        for j in range(len(trajectories_list_list[i])):
-            speed = 0
-            count = 0
-            for k in range(len(trajectories_list_list[i][j]) - 1):
-                speed += (norm(np.array(trajectories_list_list[i][j][k + 1]) -
-                               np.array(trajectories_list_list[i][j][k]))) * fps
-                count = count + 1
-            speed = speed / count
-            speed_list.append(speed)
-        speed_list_list.append(speed_list)
-    return speed_list_list
-
-
 # Time series - Distance to original point and destination point
-def CalculatePointTimeSeries(trajectories_list_list, position, cutoff_distance, fps):
+def CalculateOriPointTimeSeries(trajectories_list_list, cutoff_distance):
     distance_ts_list = []
     for k in range(len(trajectories_list_list)):
         distance_ts = []
-        for j in range(len(trajectories_list_list[k][0])):
+        for j in range(np.max(
+                [len(trajectories_list_list[k][x]) for x in range(len(trajectories_list_list[k]))])):  ## max time
             distance = 0
             for i in range(len(trajectories_list_list[k])):
-                distance = distance + norm(np.array(trajectories_list_list[k][i][j]) - np.array(position))
-            distance = distance / len(trajectories_list_list[k])
-            if (cutoff_distance < distance
-                    < norm(np.array(Original_Point) - np.array(Destination_Point)) - cutoff_distance):
+                if j >= len(trajectories_list_list[k][i]):
+                    continue
+                distance += norm(np.array(trajectories_list_list[k][i][j]) - np.array(trajectories_list_list[k][i][0]))
+            distance /= len(trajectories_list_list[k])
+            if (cutoff_distance < distance):
+                distance_ts.append((len(distance_ts), distance))
+        distance_ts_list.append(distance_ts)
+    return distance_ts_list  # --- --- --- --- ---
+
+
+def CalculateDestPointTimeSeries(trajectories_list_list, cutoff_distance):
+    distance_ts_list = []
+    for k in range(len(trajectories_list_list)):
+        distance_ts = []
+        for j in range(np.max(
+                [len(trajectories_list_list[k][x]) for x in range(len(trajectories_list_list[k]))])):  ## max time
+            distance = 0
+            for i in range(len(trajectories_list_list[k])):
+                if j >= len(trajectories_list_list[k][i]):
+                    continue
+                distance += norm(np.array(trajectories_list_list[k][i][j]) - np.array(trajectories_list_list[k][i][-1]))
+            distance /= len(trajectories_list_list[k])
+            if (cutoff_distance < distance):
                 distance_ts.append((len(distance_ts), distance))
         distance_ts_list.append(distance_ts)
     return distance_ts_list
 
 
-# Time series - Speed
-def CaculateSpeedTimeSeries(trajectories_list_list, cutoff_speed, fps):
-    speed_ts_list = []
-    for k in range(len(trajectories_list_list)):
-        speed_ts = []
-        for j in range(len(trajectories_list_list[k][0]) - 1):
-            speed = 0
-            for i in range(len(trajectories_list_list[k])):
-                speed += norm(
-                    np.array(trajectories_list_list[k][i][j + 1]) - np.array(trajectories_list_list[k][i][j])) * fps
-            speed = speed / len(trajectories_list_list[k])
-            if speed > cutoff_speed:
-                speed_ts.append((len(speed_ts), speed))
-        speed_ts_list.append(speed_ts)
-    return speed_ts_list
-
-
-# ### The evalution approach contains four types of methods
+# ### The evaluation approach contains four types of methods
 # ### Fundamental diagram, trajectories, distribution indexes, time-series indexes
 def SimilarityIndexes(expList, simList, indextype, indexname):
     index = 0
     index_sum = 0
     number = 0
-    index_max = 0
 
     for i in range(len(expList)):
         for j in range(len(simList)):
@@ -259,119 +260,108 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
             if index != 0:
                 index_sum += index
                 number += 1
-            index_max = max(index, index_max)
-    exp_filename = os.path.join('ResultData', 'explist' + indextype + indexname + '.txt')
-    sim_filename = os.path.join('ResultData', 'simlist' + indextype + indexname + '.txt')
-    pd.DataFrame(expList).to_csv(exp_filename, mode='a', sep=' ')
-    pd.DataFrame(simList).to_csv(sim_filename, mode='a', sep=' ')
+
     if number == 0:
         number = 1
-    index = index_sum / number
-    return index
+    return index_sum / number
 
 
 def ScoreNormalization(scorelist):
+    s_list_1 = []
+    s_list_2 = []
+    s_list_3 = []
     for i in range(len(scorelist) - 1, -1, -1):
         for j in range(len(scorelist[i])):
-            if scorelist[0][j] ==0:
+            if scorelist[0][j] == 0:
                 scorelist[0][j] = 0.1
+            s_list_1.append(scorelist[i][j])
             scorelist[i][j] = (scorelist[i][j] - scorelist[0][j]) / scorelist[0][j]
+            s_list_2.append(scorelist[i][j])
             scorelist[i][j] = 2 * np.exp(0 - scorelist[i][j]) / (1 + np.exp(0 - scorelist[i][j]))
+            s_list_3.append(scorelist[i][j])
+        print(s_list_1)
+        # print(s_list_2)
+        # print(s_list_3)
+        s_list_1.clear()
+        s_list_2.clear()
+        s_list_3.clear()
     return scorelist
 
 
 # ### Evaluation scores
-def Evaluation(oripoint, destpoint, ori_exp_trajectories_list_list, ori_sim_trajectories_list_list, cutoff_distance,
-               fps):
-    exp_trajectories_list_list = NormolizedTrajectories(ori_exp_trajectories_list_list)
-    sim_trajectories_list_list = NormolizedTrajectories(ori_sim_trajectories_list_list)
-    exp_modi_trajectories_list_list = FilterTrajectories(exp_trajectories_list_list, oripoint, destpoint,
-                                                         cutoff_distance)
-    sim_modi_trajectories_list_list = FilterTrajectories(sim_trajectories_list_list, oripoint, destpoint,
-                                                         cutoff_distance)
+def Evaluation(ori_exp_trajectories_list_list, ori_sim_trajectories_list_list, cutoff_distance, fps):
+    exp_trajectories_list_list = \
+        FilterTrajectories(ori_exp_trajectories_list_list, cutoff_distance)
+    sim_trajectories_list_list = \
+        FilterTrajectories(ori_sim_trajectories_list_list, cutoff_distance)
 
     # fd based data list
-    index_fd = SimilarityIndexes(CalculateFundamentalDiagram(ori_exp_trajectories_list_list, fps),
-                                 CalculateFundamentalDiagram(ori_sim_trajectories_list_list, fps),
+    index_fd = SimilarityIndexes(CalculateFundamentalDiagram(exp_trajectories_list_list, fps),
+                                 CalculateFundamentalDiagram(sim_trajectories_list_list, fps),
                                  'dtw-fd', '-fd')
 
-    # # Distribution - Route length
-    # index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
-    #                                  CalculateRouteLengthList(sim_modi_trajectories_list_list),
-    #                                  'dtw-dis', '-RL')
+    # microscopic - speed
+    index_speed = SimilarityIndexes(CalculateSpeedData(exp_trajectories_list_list, fps),
+                                    CalculateSpeedData(sim_trajectories_list_list, fps),
+                                    'ks-data', '-speed')
 
-    # Distribution - Travel Time
-    index_Dis_TT = SimilarityIndexes(CalculateTravelTimeList(exp_modi_trajectories_list_list, fps),
-                                     CalculateTravelTimeList(sim_modi_trajectories_list_list, fps),
-                                     'dtw-dis', '-TT')
-
-    # Distribution - Speed
-    index_Dis_Speed = SimilarityIndexes(CalculateSpeedList(exp_modi_trajectories_list_list, fps),
-                                        CalculateSpeedList(sim_modi_trajectories_list_list, fps),
-                                        'dtw-dis', '-Speed')
+    # microscopic - direction
+    index_direction = SimilarityIndexes(CalculateDirectionData(exp_trajectories_list_list),
+                                        CalculateDirectionData(sim_trajectories_list_list),
+                                        'ks-data', '-direction')
 
     # Distribution - Route length
-    index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_modi_trajectories_list_list),
-                                     CalculateRouteLengthList(sim_modi_trajectories_list_list),
-                                     'dtw-dis', '-RL')
+    index_Dis_RL = SimilarityIndexes(CalculateRouteLengthList(exp_trajectories_list_list),
+                                     CalculateRouteLengthList(sim_trajectories_list_list),
+                                     'ks-data', '-RL')
+
+    # Distribution - Travel Time
+    index_Dis_TT = SimilarityIndexes(CalculateTravelTimeList(exp_trajectories_list_list, fps),
+                                     CalculateTravelTimeList(sim_trajectories_list_list, fps),
+                                     'ks-data', '-TT')
 
     # Times series - Original position
     index_TS_OriPoint = SimilarityIndexes(
-        CalculatePointTimeSeries(exp_trajectories_list_list, oripoint, cutoff_distance, fps),
-        CalculatePointTimeSeries(sim_trajectories_list_list, oripoint, cutoff_distance, fps),
+        CalculateOriPointTimeSeries(exp_trajectories_list_list, cutoff_distance),
+        CalculateOriPointTimeSeries(sim_trajectories_list_list, cutoff_distance),
         "dtw-ts", '-oripoint')
 
     # Times series - Destination position
     index_TS_DestPoint = SimilarityIndexes(
-        CalculatePointTimeSeries(exp_trajectories_list_list, destpoint, cutoff_distance, fps),
-        CalculatePointTimeSeries(sim_trajectories_list_list, destpoint, cutoff_distance, fps),
+        CalculateDestPointTimeSeries(exp_trajectories_list_list, cutoff_distance),
+        CalculateDestPointTimeSeries(sim_trajectories_list_list, cutoff_distance),
         "dtw-ts", '-destpoint')
 
-    # Time series - Speed
-    index_TS_Speed = SimilarityIndexes(CaculateSpeedTimeSeries(exp_trajectories_list_list, 0.1, fps),
-                                       CaculateSpeedTimeSeries(sim_trajectories_list_list, 0.1, fps),
-                                       "dtw-ts", '-Speed')
-
     # Microscopic trajectories
-    index_Trajectories = SimilarityIndexes(exp_modi_trajectories_list_list,
-                                           sim_modi_trajectories_list_list,
-                                           "dtw-sort", 'trajectroies')
+    indexTrajectories = SimilarityIndexes(exp_trajectories_list_list,
+                                          sim_trajectories_list_list, "dtw-trajectories", '-trajectories')
 
-    scores = [index_fd,  # macroscopic fd
-              index_Dis_RL, index_Dis_TT, index_Dis_Speed,  # static distribution
-              index_TS_OriPoint, index_TS_DestPoint, index_TS_Speed,  # dynamic time series
-              index_Trajectories]  # microscopic trajectories
+    scores = [index_fd,  # speed choice
+              index_Dis_RL, index_Dis_TT, index_speed,  # static distribution
+              index_TS_OriPoint, index_TS_DestPoint, index_direction,  # dynamic time series
+              indexTrajectories]  # direction choice
 
     return scores
 
 
 ### top bottom
 if __name__ == "__main__":
-    Original_Point = (0, 0)  # starting position
-    Destination_Point = (20, 0)  # destination position
-    Cutoff_Distance = 1  # cut-off distance
-    Ori_Fps = 25  # flames per second
-    Dest_Fps = 5  # flames per second
-    Labels = ['EXP', 'SFM', 'HM', 'BM']
-    Line_Styles = ['k--', 'b^-.', 'gs--', 'ro-', 'yv:']
-    # Folder_Name = r'C:\Users\xiaoy\Nut\Nutstore\Codes\Pedestrian Dynamics\Code_Voronoi_x1' \
-    #               r'\PedestrianFlow_Forcebasedmodel\bin\Debug\Evaluation-Test'
-    Folder_Name = r'BaseData'
 
-    Ori_Trajectories_List_List_List = []
+    ## 1 Data pre-processing ##
+    Labels = ['EXP', 'SFM', 'HM']  # empirical and model result labels
+    Ori_Fps = 25  # flames per second in original trajectories
+    Adj_Fps = 5  # flames per second in adjustment trajectories
+    Folder_Name = r'BaseData'
     Trajectories_List_List_List = []
-    Scores_List = []
     for i in range(0, len(Labels)):
-        Trajectories_List_List = InputTrajectories(os.path.join(Folder_Name, Labels[i]))
-        Trajectories_List_List_List.append(Trajectories_List_List)
-    Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Dest_Fps)
+
     for i in range(0, len(Trajectories_List_List_List)):
-        scores = Evaluation(Original_Point, Destination_Point, Trajectories_List_List_List[0],
-                            Trajectories_List_List_List[i],
-                            Cutoff_Distance, Dest_Fps)
+        scores = Evaluation(Trajectories_List_List_List[0], Trajectories_List_List_List[i], Cutoff_Distance, Adj_Fps)
         Scores_List.append(scores)
     Scores_List = ScoreNormalization(Scores_List)
 
-    Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
+    ## 3 Radar figure ##
+    Line_Styles = ['k--', 'b^-.', 'gs--', 'ro-', 'yv:`']
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
-    print("Finished!!")
+    Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
+    print("Finished!!!")
