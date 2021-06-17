@@ -6,18 +6,26 @@ from matplotlib.lines import Line2D
 def RadarFigure(scoreslist, linestylelist, modelnamelist):
     # 模板数据和标签
     dataLenth = 8
+
     angles = np.linspace((1 / 4) * np.pi, (2 + 1 / 4) * np.pi, dataLenth, endpoint=False)
     angles = np.concatenate((angles, [angles[0]]))
-    labels = np.array(['TS of \n Starting Position', 'Mircroscopic \n Trajectories Pattern', 'Dis of \n Route Length'
-                          , 'Dis of \n Travel Time', 'Dis of \n Speed',
-                       'Macroscopic \n Fundamental Diagram', 'TS of \n Speed', 'TS of \n Destination Position'])
+    labels = np.array(['TS of \n Starting Position', 'Trajectories Pattern', 'Dis of \n Route Length'
+                          , 'Dis of \n Travel Time', 'Speed Choice',
+                       'Fundamental Diagram', 'Direction Choice', 'TS of \n Destination Position'])
+    # labels = np.array(['TS of \n Starting Position', 'Direction choice', 'Dis of \n Route Length'
+    #                       , 'Dis of \n Travel Time', 'Dis of \n Speed',
+    #                    'Speed choice', 'TS of \n Speed', 'TS of \n Destination Position'])
 
     fig = plt.figure(figsize=(3.4, 3.3), dpi=300, linewidth=0.5)
     ax = fig.add_subplot(111, polar=True)
     plt.rcParams.update({'font.size': 6.5})
     plt.grid(linewidth=0.25, linestyle='--')
 
-    ### data
+    # # data
+    # scores = [index_speed,  # speed choice
+    #           index_Dis_RL, index_Dis_TT, index_Dis_Speed,  # static distribution
+    #           index_TS_OriPoint, index_TS_DestPoint, index_TS_Speed,  # dynamic time series
+    #           index_direction]  # direction choice
     linelist = []
     for i in range(len(scoreslist)):
         z = [scoreslist[i][4], scoreslist[i][7], scoreslist[i][1], scoreslist[i][2], scoreslist[i][3], scoreslist[i][0],
@@ -55,13 +63,11 @@ def RadarFigure(scoreslist, linestylelist, modelnamelist):
     ax.grid(True)
 
     # 设置legend
-    # modelnamelist.remove('EXP')
     plt.legend(handles=linelist, labels=modelnamelist, fontsize=7,
                labelspacing=0.075, borderpad=None, edgecolor='white',  # borderaxespad = None,
                loc=5, bbox_to_anchor=(1.175, -0.06))
     # plt.figure(figsize = (2,2))
     plt.savefig("radar.jpg")
-    # plt.text(-1.5, 0, '66', size=88, color='gray', alpha=0.8, horizontalalignment='center', verticalalignment='center')
     plt.show()
 
 
@@ -71,10 +77,9 @@ def SoloRadarFigure(scoreslist, linestylelist, modelnamelist):
         dataLenth = 8
         angles = np.linspace((1 / 4) * np.pi, (2 + 1 / 4) * np.pi, dataLenth, endpoint=False)
         angles = np.concatenate((angles, [angles[0]]))
-        labels = np.array(
-            ['TS of \n Starting Position', 'Mircroscopic \n Trajectories Pattern', 'Dis of \n Route Length'
-                , 'Dis of \n Travel Time', 'Dis of \n Speed',
-             'Macroscopic \n Fundamental Diagram', 'TS of \n Speed', 'TS of \n Destination Position'])
+        labels = np.array(['TS of \n Starting Position', 'Trajectories Pattern', 'Dis of \n Route Length'
+                              , 'Dis of \n Travel Time', 'Speed Choice',
+                           'Fundamental Diagram', 'Direction Choice', 'TS of \n Destination Position'])
 
         fig = plt.figure(figsize=(3.4, 3.3), dpi=300, linewidth=0.5)
         ax = fig.add_subplot(111, polar=True)
@@ -127,8 +132,7 @@ def SoloRadarFigure(scoreslist, linestylelist, modelnamelist):
         # plt.figure(figsize = (2,2))
         average_score = scoreslist[i][0] * 0.25 + (scoreslist[i][1] + scoreslist[i][2] + scoreslist[i][3]) / 3 * 0.25 \
                         + (scoreslist[i][4] + scoreslist[i][5] + scoreslist[i][6]) / 3 * 0.25 + scoreslist[i][7] * 0.25
-        average_score = int(average_score*100)
+        average_score = int(average_score * 100)
         plt.text(-1.5, 0, average_score, size=88, color='gray', alpha=0.8, horizontalalignment='center',
                  verticalalignment='center')
         plt.savefig(r"ResultPics//radar-" + str(i) + ".jpg")
-

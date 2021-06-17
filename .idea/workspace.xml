@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5ec7bea8-312a-462b-810a-40f0438f6de9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Radar.py" beforeDir="false" afterPath="$PROJECT_DIR$/Radar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ResultPics/radar-0.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/ResultPics/radar-0.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ResultPics/radar-1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/ResultPics/radar-1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ResultPics/radar-2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/ResultPics/radar-2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ResultPics/radar-3.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/ResultPics/radar-3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/radar.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/radar.jpg" afterDir="false" />
-    </list>
+    <list default="true" id="5ec7bea8-312a-462b-810a-40f0438f6de9" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +111,14 @@
       <option name="project" value="LOCAL" />
       <updated>1583480012597</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="update">
+      <created>1583486018516</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1583486018516</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
