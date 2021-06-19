@@ -6,6 +6,7 @@ import numpy as np
 def Distance(p1, p2):
     return np.linalg.norm(np.array(p1)-np.array(p2))
 
+
 def DtwX(s1, s2):
     w = len(s1)
     h = len(s2)
