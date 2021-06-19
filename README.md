@@ -6,10 +6,10 @@ Considering the fact that there is almost no general quatitative evaluation, cal
 With this code, we formulate a framework for quantitatively evaluating a pedestrian model by comparing the trajectories in simulations and in experiments. 
 
 We introduce four types of indexes here:
-- macroscopic type (Fundamental diagram index)
+- macroscopic type (fundamental diagram index, speed choice index, and direction choice index)
 - microscopic type (trajectories pattern index)
-- static distribution indexes (i.e., route length distribution index, travel time distribution index speed distribution index)
-- dynamic time-series index (i.e., starting position distance time-series index, destination position distance time-seiries index and speed time-series index). 
+- distribution type (route length distribution index, travel time distribution index)
+- time-series type (starting position distance time-series index, destination position distance time-series index). 
 
 An improved dynamic time warping approach is applied, and a detailed calculation process can be found in the code. 
 
