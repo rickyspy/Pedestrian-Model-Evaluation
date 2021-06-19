@@ -22,7 +22,10 @@ def InputTrajectories(file_folder):
             files.append(file)
 
     trajectories_list_list = []
+    for input_file in files:  #
 
+        # ori_data = pd.read_csv(file_folder + "//" + input_file, header=None, sep="\t|;| ", engine='python')
+        ori_data = pd.read_csv(os.path.join(file_folder, input_file), header=None, sep="\t")
         trajectories_list = []
         trajectories = []
         for i in range(ori_data.shape[0]):
@@ -260,7 +263,13 @@ def SimilarityIndexes(expList, simList, indextype, indexname):
             if index != 0:
                 index_sum += index
                 number += 1
+    outdir = './ResultData'
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
 
+    pd.DataFrame(expList).to_csv(os.path.join(outdir,'explist-' + indextype + indexname + '.txt'), mode='a', sep=' ')
+    pd.DataFrame(simList).to_csv(os.path.join(outdir,'simlist-' + indextype + indexname + '.txt'), mode='a', sep=' ')
+    # pd.DataFrame(simList).to_csv(outdir + '/explist-' + indextype + indexname + '.txt', mode='a', sep=' ')
     if number == 0:
         number = 1
     return index_sum / number
@@ -354,7 +363,13 @@ if __name__ == "__main__":
     Folder_Name = r'BaseData'
     Trajectories_List_List_List = []
     for i in range(0, len(Labels)):
+        # Trajectories_List_List = InputTrajectories(os.path.join(Folder_Name, Labels[i]))
+        Trajectories_List_List_List.append(InputTrajectories(os.path.join(Folder_Name, Labels[i])))
+    Trajectories_List_List_List = FPSAdjustment(Trajectories_List_List_List, Ori_Fps, Adj_Fps)
 
+    ## 2 Evaluation ##
+    Scores_List = []
+    Cutoff_Distance = 1  # cut-off distance
     for i in range(0, len(Trajectories_List_List_List)):
         scores = Evaluation(Trajectories_List_List_List[0], Trajectories_List_List_List[i], Cutoff_Distance, Adj_Fps)
         Scores_List.append(scores)
