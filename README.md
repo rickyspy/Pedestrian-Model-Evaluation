@@ -11,7 +11,7 @@ We introduce four types of indexes here:
 - distribution type (route length distribution index, travel time distribution index)
 - time-series type (starting position distance time-series index, destination position distance time-series index). 
 
-An improved dynamic time warping approach is applied, and a detailed calculation process can be found in the code. 
+An improved dynamic time warping approach as well as the Kolmogorov-Smirnov approach are applied, and a detailed calculation process can be found in the code. 
 
 This work is feasible for different experiments and different simulations, hence the researchers can find a quantitative benchmark to evaluate, calibrate and validate pedestrian models.
 
