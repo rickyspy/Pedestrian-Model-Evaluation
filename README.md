@@ -4,6 +4,9 @@ Considering the fact that there is almost no general quatitative evaluation, cal
 
 
 With this code, we formulate a framework for quantitatively evaluating a pedestrian model by comparing the trajectories in simulations and in experiments. 
+The framework is described in this the paper [A generalized trajectories-based evaluation approach for pedestrian evacuation models, Safety Science,
+Volume 147,
+2022.](https://www.sciencedirect.com/science/article/pii/S0925753521004161?dgcid=coauthor#ak005)
 
 We introduce four types of indexes here:
 - macroscopic type (fundamental diagram index, speed choice index, and direction choice index)
