@@ -379,4 +379,4 @@ if __name__ == "__main__":
     Line_Styles = ['k--', 'b^-.', 'gs--', 'ro-', 'yv:`']
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
     Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
-    print("Finished!!!")
+    print("Finished!!")
