@@ -22,7 +22,7 @@ def InputTrajectories(file_folder):
             files.append(file)
 
     trajectories_list_list = []
-    for input_file in files:  #
+    for input_file in files:
 
         # ori_data = pd.read_csv(file_folder + "//" + input_file, header=None, sep="\t|;| ", engine='python')
         ori_data = pd.read_csv(os.path.join(file_folder, input_file), header=None, sep="\t")
