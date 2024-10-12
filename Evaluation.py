@@ -375,8 +375,9 @@ if __name__ == "__main__":
         Scores_List.append(scores)
     Scores_List = ScoreNormalization(Scores_List)
 
-    ## 3 Radar figure ##
+    ## 3 Radar figure #
     Line_Styles = ['k--', 'b^-.', 'gs--', 'ro-', 'yv:`']
     Radar.RadarFigure(Scores_List, Line_Styles, Labels)
     Radar.SoloRadarFigure(Scores_List, Line_Styles, Labels)
     print("Finished!!")
+    print("1")
